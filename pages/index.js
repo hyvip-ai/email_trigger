@@ -1,35 +1,43 @@
-import { useState } from 'react';
 import SEO from '../components/SEO';
-import { Configuration, OpenAIApi } from 'openai';
-
-const configuration = new Configuration({
-  apiKey: process.env.NEXT_PUBLIC_OPENAI_API_KEY,
-});
-
-async function generateEmail() {
-  const openai = new OpenAIApi(configuration);
-  const response = await openai.createCompletion({
-    model: 'davinci',
-    prompt: 'Say this is a test',
-    max_tokens: 10,
-    temperature: 0.9,
-  });
-  console.log(response);
-}
+import { useCallback, useEffect } from 'react';
+import { useRouter } from 'next/router';
+import { useTokenStore } from '../store/token';
 
 export default function Home() {
-  const [emailType, setEmailType] = useState('');
-  const onSubmit = (e) => {
+  const router = useRouter();
+  const setAccessToken = useTokenStore((state) => state.setAccessToken);
+
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    generateEmail();
+    const res = await fetch('/api/auth').then((res) => res.json());
+    router.push(res.url);
   };
+
+  const handleTokens = useCallback(
+    async (code) => {
+      const tokens = await fetch('/api/tokens', {
+        method: 'POST',
+        body: JSON.stringify({ code }),
+        headers: { 'Content-Type': 'application/json' },
+      }).then((res) => res.json());
+      setAccessToken({ ...tokens.tokens });
+      router.push(`/email`);
+    },
+    [router, setAccessToken]
+  );
+
+  useEffect(() => {
+    if (router.query.code) {
+      handleTokens(router.query.code);
+    }
+  }, [router, handleTokens]);
+
   return (
     <>
       <SEO />
       <h1>Email Trigger</h1>
-      <form onSubmit={onSubmit}>
-        <input type='text' placeholder='Enter your text here' />
-        <button type='submit'>Submit</button>
+      <form onSubmit={handleSubmit}>
+        <button type='submit'>Give Access</button>
       </form>
     </>
   );

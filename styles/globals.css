@@ -90,6 +90,30 @@ a {
   text-decoration: none;
 }
 
+form {
+  display: flex;
+  justify-content: center;
+  margin-top: 100px;
+}
+
+input {
+  width: 300px;
+  height: 45px;
+  border-radius: 4px;
+  border: none;
+  outline: none;
+  padding: 0px 8px;
+}
+
+button {
+  height: 45px;
+  padding: 4px 16px;
+  margin-left: 8px;
+  border-radius: 4px;
+  cursor: pointer;
+}
+
+
 @media (prefers-color-scheme: dark) {
   html {
     color-scheme: dark;
