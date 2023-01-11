@@ -1,14 +1,12 @@
-import { gmail } from './AuthClient';
+import { gmail, oauth2Client } from './AuthClient';
 
-const getMostRecentMessageWithTag = async (email, historyId) => {
-  // Look up the most recent message.
+const getMostRecentMessageWithTag = async (email, accessToken) => {
+  oauth2Client.setCredentials(accessToken);
   const listMessagesRes = await gmail.users.messages.list({
     userId: email,
     maxResults: 1,
   });
-  const messageId = await checkForDuplicateNotifications(
-    listMessagesRes.data.messages[0].id
-  );
+  const messageId = listMessagesRes.data.messages[0].id;
 
   // Get the message using the message ID.
   if (messageId) {
@@ -42,8 +40,10 @@ export default async function handler(req, res) {
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
-  const historyId = newMessageNotification.historyId;
-  const message = await getMostRecentMessageWithTag(email, historyId);
+  const message = await getMostRecentMessageWithTag(
+    email,
+    req.body.accessToken
+  );
 
   if (message) {
     const messageInfo = extractInfoFromMessage(message);
