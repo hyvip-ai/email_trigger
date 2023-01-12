@@ -8,7 +8,7 @@ const encodeMessage = (message) => {
     .replace(/=+$/, '');
 };
 
-const neededNames = ['From', 'Subject', 'Delivered-To', 'Reply-To'];
+const neededNames = ['From', 'Subject', 'Delivered-To'];
 
 const getMostRecentMessageWithTag = async (
   email,
@@ -43,7 +43,6 @@ const createDraft = async ({
   refresh_token,
   threadId,
   toEmail,
-  toName,
   fromName,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
@@ -82,14 +81,14 @@ export default async function handler(req, res) {
 
   if (needed.Subject.toLowerCase() === 'match with this') {
     try {
-      await createDraft({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        threadId,
-        toEmail: needed['Delivered-To'],
-        fromName: needed['From'],
-        toName: needed['Reply-To'],
-      });
+      console.log(needed['From']);
+      // await createDraft({
+      //   access_token: tokens.access_token,
+      //   refresh_token: tokens.refresh_token,
+      //   threadId,
+      //   toEmail: needed['Delivered-To'],
+      //   fromName: needed['From'],
+      // });
     } catch (err) {
       console.log(err);
     }
