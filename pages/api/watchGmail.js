@@ -8,6 +8,8 @@ const encodeMessage = (message) => {
     .replace(/=+$/, '');
 };
 
+const neededNames = ['From', 'Subject', 'Delivered-To', 'Reply-To'];
+
 const getMostRecentMessageWithTag = async (
   email,
   access_token,
