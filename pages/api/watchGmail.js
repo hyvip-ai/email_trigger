@@ -50,7 +50,7 @@ const createDraft = async ({
 
   await gmail.users.drafts.create({
     userId: toEmail,
-    access_token: tokens.access_token,
+    access_token,
     requestBody: {
       message: {
         threadId,
