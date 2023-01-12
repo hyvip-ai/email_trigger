@@ -33,7 +33,7 @@ const getMostRecentMessageWithTag = async (
       .reduce((acc, item) => {
         return (acc = { ...acc, [item.name]: item.value });
       }, {});
-    return needed;
+    return { needed, threadId: message.data.threadId };
   }
 };
 
@@ -72,7 +72,7 @@ export default async function handler(req, res) {
     .eq('email', email)
     .single();
 
-  const needed = await getMostRecentMessageWithTag(
+  const { needed, threadId } = await getMostRecentMessageWithTag(
     email,
     tokens.access_token,
     tokens.refresh_token
@@ -83,7 +83,7 @@ export default async function handler(req, res) {
   await createDraft({
     access_token: tokens.access_token,
     refresh_token: tokens.refresh_token,
-    threadId: message.data.threadId,
+    threadId,
     toEmail: needed['Delivered-To'],
     fromName: needed['From'],
     toName: needed['Reply-To'],
