@@ -1,8 +1,12 @@
 import { gmail, oauth2Client } from './AuthClient';
 import { supabase } from '../../utils/supabase';
 
-const getMostRecentMessageWithTag = async (email, accessToken) => {
-  oauth2Client.setCredentials({ access_token: accessToken });
+const getMostRecentMessageWithTag = async (
+  email,
+  access_token,
+  refresh_token
+) => {
+  oauth2Client.setCredentials({ access_token, refresh_token });
   const listMessagesRes = await gmail.users.messages.list({
     userId: email,
     maxResults: 1,
@@ -37,8 +41,8 @@ const extractInfoFromMessage = (message) => {
   };
 };
 
-const createDraft = (email, accessToken, threadId) => {
-  oauth2Client.setCredentials({ access_token: accessToken });
+const createDraft = (email, access_token, threadId) => {
+  oauth2Client.setCredentials({ access_token, refresh_token });
   gmail.users.drafts.create({
     userId: 'me',
     requestBody: {
@@ -64,13 +68,22 @@ export default async function handler(req, res) {
     .eq('email', email)
     .single();
 
-  const message = await getMostRecentMessageWithTag(email, tokens.access_token);
+  const message = await getMostRecentMessageWithTag(
+    email,
+    tokens.access_token,
+    tokens.refresh_token
+  );
 
   if (message) {
     const messageInfo = extractInfoFromMessage(message);
   }
 
-  createDraft(email, tokens.access_token, message.data.threadId);
+  createDraft(
+    email,
+    tokens.access_token,
+    tokens.refresh_token,
+    message.data.threadId
+  );
 
   res.status(200).json({ something: 'something' });
 }
