@@ -2,7 +2,7 @@ import { gmail, oauth2Client } from './AuthClient';
 import { supabase } from '../../utils/supabase';
 
 const getMostRecentMessageWithTag = async (email, accessToken) => {
-  oauth2Client.setCredentials(accessToken);
+  oauth2Client.setCredentials({ access_token: accessToken });
   const listMessagesRes = await gmail.users.messages.list({
     userId: email,
     maxResults: 1,
@@ -38,7 +38,6 @@ const extractInfoFromMessage = (message) => {
 };
 
 export default async function handler(req, res) {
-  console.log(req);
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
@@ -48,14 +47,16 @@ export default async function handler(req, res) {
     .eq('email', email)
     .single();
 
-  const message = await getMostRecentMessageWithTag(email, tokens.access_token);
+  console.log(tokens, email);
 
-  if (message) {
-    const messageInfo = extractInfoFromMessage(message);
-    console.log({ message, ...messageInfo });
-  }
+  // const message = await getMostRecentMessageWithTag(email, tokens.access_token);
 
-  console.log(newMessageNotification);
+  // if (message) {
+  //   const messageInfo = extractInfoFromMessage(message);
+  //   console.log({ message, ...messageInfo });
+  // }
+
+  // console.log(newMessageNotification);
 
   res.status(200).json({ something: 'something' });
 }
