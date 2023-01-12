@@ -1,4 +1,3 @@
-import { google } from 'googleapis';
 import { oauth2Client } from './AuthClient';
 
 const scopes = [
