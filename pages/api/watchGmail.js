@@ -43,16 +43,17 @@ export default async function handler(req, res) {
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
   let { data: tokens, error } = await supabase
-    .from('token')
+    .from('tokens')
     .select('access_token,refresh_token')
-    .eq('email', email);
-  console.log(tokens);
-  // const message = await getMostRecentMessageWithTag(email, access_token);
+    .eq('email', email)
+    .single();
 
-  // if (message) {
-  //   const messageInfo = extractInfoFromMessage(message);
-  //   console.log({ message, ...messageInfo });
-  // }
+  const message = await getMostRecentMessageWithTag(email, tokens.access_token);
+
+  if (message) {
+    const messageInfo = extractInfoFromMessage(message);
+    console.log({ message, ...messageInfo });
+  }
 
   console.log(newMessageNotification);
 
