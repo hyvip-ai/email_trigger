@@ -79,14 +79,15 @@ export default async function handler(req, res) {
 
   // needed.Subject
 
-  await createDraft({
-    access_token: tokens.access_token,
-    refresh_token: tokens.refresh_token,
-    threadId,
-    toEmail: needed['Delivered-To'],
-    fromName: needed['From'],
-    toName: needed['Reply-To'],
-  });
-
+  if (needed.Subject.toLowerCase() === 'match with this') {
+    await createDraft({
+      access_token: tokens.access_token,
+      refresh_token: tokens.refresh_token,
+      threadId,
+      toEmail: needed['Delivered-To'],
+      fromName: needed['From'],
+      toName: needed['Reply-To'],
+    });
+  }
   res.status(200).json({ message: 'successful' });
 }
