@@ -76,9 +76,10 @@ export default async function handler(req, res) {
 
   if (message) {
     const messageInfo = extractInfoFromMessage(message);
+    console.log({ ...message, ...messageInfo });
   }
 
-  createDraft(tokens.access_token, tokens.refresh_token, message.data.threadId);
+  // createDraft(tokens.access_token, tokens.refresh_token, message.data.threadId);
 
   res.status(200).json({ something: 'something' });
 }
