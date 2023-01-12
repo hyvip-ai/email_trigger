@@ -47,16 +47,14 @@ export default async function handler(req, res) {
     .eq('email', email)
     .single();
 
-  console.log(tokens, email);
+  const message = await getMostRecentMessageWithTag(email, tokens.access_token);
 
-  // const message = await getMostRecentMessageWithTag(email, tokens.access_token);
+  if (message) {
+    const messageInfo = extractInfoFromMessage(message);
+    console.log({ message, ...messageInfo });
+  }
 
-  // if (message) {
-  //   const messageInfo = extractInfoFromMessage(message);
-  //   console.log({ message, ...messageInfo });
-  // }
-
-  // console.log(newMessageNotification);
+  console.log(newMessageNotification);
 
   res.status(200).json({ something: 'something' });
 }
