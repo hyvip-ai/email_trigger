@@ -1,5 +1,5 @@
 import { gmail, oauth2Client } from './AuthClient';
-import cookie from 'cookie';
+import { supabase } from '../../utils/supabase';
 
 const getMostRecentMessageWithTag = async (email, accessToken) => {
   oauth2Client.setCredentials(accessToken);
@@ -42,6 +42,11 @@ export default async function handler(req, res) {
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
+  let { data: tokens, error } = await supabase
+    .from('token')
+    .select('access_token,refresh_token')
+    .eq('email', email);
+  console.log(tokens);
   // const message = await getMostRecentMessageWithTag(email, access_token);
 
   // if (message) {

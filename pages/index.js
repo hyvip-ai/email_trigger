@@ -3,6 +3,7 @@ import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useTokenStore } from '../store/token';
 import { useCookies } from 'react-cookie';
+import { supabase } from '../utils/supabase';
 
 export default function Home() {
   const router = useRouter();
@@ -22,8 +23,16 @@ export default function Home() {
         body: JSON.stringify({ code }),
         headers: { 'Content-Type': 'application/json' },
       }).then((res) => res.json());
+      console.log(tokens);
       setAccessToken({ ...tokens.tokens });
       setCookie('access_token', JSON.stringify(tokens.tokens.access_token));
+      await supabase.from('tokens').insert([
+        {
+          email: tokens.email,
+          access_token: tokens.tokens.access_token,
+          refresh_token: tokens.tokens.refresh_token,
+        },
+      ]);
       router.push(`/email`);
     },
     [router, setAccessToken, setCookie]
