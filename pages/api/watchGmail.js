@@ -28,6 +28,7 @@ const getMostRecentMessageWithTag = async (
       userId: email,
       id: messageId,
     });
+    console.log(JSON.stringify(message.data.payload.headers));
     const needed = message.data.payload.headers
       .filter((item) => neededNames.includes(item.name))
       .reduce((acc, item) => {
@@ -80,14 +81,18 @@ export default async function handler(req, res) {
   // needed.Subject
 
   if (needed.Subject.toLowerCase() === 'match with this') {
-    await createDraft({
-      access_token: tokens.access_token,
-      refresh_token: tokens.refresh_token,
-      threadId,
-      toEmail: needed['Delivered-To'],
-      fromName: needed['From'],
-      toName: needed['Reply-To'],
-    });
+    try {
+      await createDraft({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        threadId,
+        toEmail: needed['Delivered-To'],
+        fromName: needed['From'],
+        toName: needed['Reply-To'],
+      });
+    } catch (err) {
+      console.log(err);
+    }
   }
   res.status(200).json({ message: 'successful' });
 }
