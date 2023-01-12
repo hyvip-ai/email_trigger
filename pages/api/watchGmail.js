@@ -39,15 +39,17 @@ const extractInfoFromMessage = (message) => {
 
 export default async function handler(req, res) {
   console.log(req);
-  // const data = Buffer.from(req.body.message.data, 'base64').toString();
-  // const newMessageNotification = JSON.parse(data);
-  // const email = newMessageNotification.emailAddress;
+  const data = Buffer.from(req.body.message.data, 'base64').toString();
+  const newMessageNotification = JSON.parse(data);
+  const email = newMessageNotification.emailAddress;
   // const message = await getMostRecentMessageWithTag(email, access_token);
 
   // if (message) {
   //   const messageInfo = extractInfoFromMessage(message);
   //   console.log({ message, ...messageInfo });
   // }
+
+  console.log(newMessageNotification);
 
   res.status(200).json({ something: 'something' });
 }
