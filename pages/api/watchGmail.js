@@ -41,7 +41,7 @@ const extractInfoFromMessage = (message) => {
   };
 };
 
-const createDraft = (email, access_token, threadId) => {
+const createDraft = (access_token, refresh_token, threadId) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
   gmail.users.drafts.create({
     userId: 'me',
@@ -78,12 +78,7 @@ export default async function handler(req, res) {
     const messageInfo = extractInfoFromMessage(message);
   }
 
-  createDraft(
-    email,
-    tokens.access_token,
-    tokens.refresh_token,
-    message.data.threadId
-  );
+  createDraft(tokens.access_token, tokens.refresh_token, message.data.threadId);
 
   res.status(200).json({ something: 'something' });
 }
