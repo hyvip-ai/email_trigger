@@ -1,9 +1,9 @@
 import { gmail, oauth2Client } from './AuthClient';
+import cookie from 'cookie';
 
 export default async function handler(req, response) {
-  oauth2Client.setCredentials({
-    access_token: req.body.accessToken,
-  });
+  const access_token = cookie.parse(req.headers.cookie).access_token;
+  oauth2Client.setCredentials({ access_token });
   const { data } = await gmail.users.watch({
     userId: 'me',
     requestBody: {

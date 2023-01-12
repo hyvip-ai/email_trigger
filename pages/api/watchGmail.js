@@ -1,4 +1,5 @@
 import { gmail, oauth2Client } from './AuthClient';
+import cookie from 'cookie';
 
 const getMostRecentMessageWithTag = async (email, accessToken) => {
   oauth2Client.setCredentials(accessToken);
@@ -37,13 +38,11 @@ const extractInfoFromMessage = (message) => {
 };
 
 export default async function handler(req, res) {
+  const access_token = cookie.parse(req.headers.cookie).access_token;
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
-  const message = await getMostRecentMessageWithTag(
-    email,
-    req.body.accessToken
-  );
+  const message = await getMostRecentMessageWithTag(email, access_token);
 
   if (message) {
     const messageInfo = extractInfoFromMessage(message);

@@ -2,10 +2,12 @@ import SEO from '../components/SEO';
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useTokenStore } from '../store/token';
+import { useCookies } from 'react-cookie';
 
 export default function Home() {
   const router = useRouter();
   const setAccessToken = useTokenStore((state) => state.setAccessToken);
+  const [cookies, setCookie] = useCookies(['access_token']);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -21,9 +23,10 @@ export default function Home() {
         headers: { 'Content-Type': 'application/json' },
       }).then((res) => res.json());
       setAccessToken({ ...tokens.tokens });
+      setCookie('access_token', JSON.stringify(tokens.tokens.access_token));
       router.push(`/email`);
     },
-    [router, setAccessToken]
+    [router, setAccessToken, setCookie]
   );
 
   useEffect(() => {
