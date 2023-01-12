@@ -43,11 +43,14 @@ const createDraft = async ({
   refresh_token,
   threadId,
   toEmail,
-  fromName,
+  fromEmail,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
-  console.log(toEmail);
-  const text = `To: ${toName}\r\n\r\n Hello ${fromName},\nThe message text goes here\nRegards,\nRajat Mondal`;
+  const text = `To: ${fromEmail
+    ?.split(' <')[1]
+    .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\n Hello ${
+    fromEmail.split(' <')[0].split(' ')[0]
+  },\nThe message text goes here\nRegards,\nRajat Mondal`;
 
   await gmail.users.drafts.create({
     userId: 'me',
@@ -81,14 +84,13 @@ export default async function handler(req, res) {
 
   if (needed.Subject.toLowerCase() === 'match with this') {
     try {
-      console.log(needed['From']);
-      // await createDraft({
-      //   access_token: tokens.access_token,
-      //   refresh_token: tokens.refresh_token,
-      //   threadId,
-      //   toEmail: needed['Delivered-To'],
-      //   fromName: needed['From'],
-      // });
+      await createDraft({
+        access_token: tokens.access_token,
+        refresh_token: tokens.refresh_token,
+        threadId,
+        toEmail: needed['Delivered-To'],
+        fromEmail: needed['From'],
+      });
     } catch (err) {
       console.log(err);
     }
