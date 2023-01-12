@@ -8,7 +8,7 @@ const encodeMessage = (message) => {
     .replace(/=+$/, '');
 };
 
-const neededNames = ['From', 'Subject', 'Delivered-To'];
+const neededNames = ['From', 'Subject', 'To'];
 
 const getMostRecentMessageWithTag = async (
   email,
@@ -82,13 +82,13 @@ export default async function handler(req, res) {
 
   // needed.Subject
 
-  if (needed.Subject.toLowerCase() === 'match with this') {
+  if (needed['Subject']?.toLowerCase() === 'match with this') {
     try {
       await createDraft({
         access_token: tokens.access_token,
         refresh_token: tokens.refresh_token,
         threadId,
-        toEmail: needed['Delivered-To'],
+        toEmail: needed['To'],
         fromEmail: needed['From'],
       });
     } catch (err) {
