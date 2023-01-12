@@ -46,10 +46,11 @@ const createDraft = async ({
   fromName,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
+  console.log(toEmail);
   const text = `To: ${toName}\r\n\r\n Hello ${fromName},\nThe message text goes here\nRegards,\nRajat Mondal`;
 
   await gmail.users.drafts.create({
-    userId: toEmail,
+    userId: 'me',
     access_token,
     requestBody: {
       message: {
