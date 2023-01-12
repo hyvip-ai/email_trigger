@@ -37,11 +37,28 @@ const extractInfoFromMessage = (message) => {
   };
 };
 
+const createDraft = (email, accessToken, threadId) => {
+  oauth2Client.setCredentials({ access_token: accessToken });
+  gmail.users.drafts.create({
+    userId: 'me',
+    requestBody: {
+      message: {
+        threadId,
+        payload: {
+          body: {
+            data: 'This is a draft message, Just replying It buddy, dont worry',
+          },
+        },
+      },
+    },
+  });
+};
+
 export default async function handler(req, res) {
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
   const email = newMessageNotification.emailAddress;
-  let { data: tokens, error } = await supabase
+  let { data: tokens } = await supabase
     .from('tokens')
     .select('access_token,refresh_token')
     .eq('email', email)
@@ -51,10 +68,9 @@ export default async function handler(req, res) {
 
   if (message) {
     const messageInfo = extractInfoFromMessage(message);
-    console.log({ message, ...messageInfo });
   }
 
-  console.log(newMessageNotification);
+  createDraft(email, tokens.access_token, message.data.threadId);
 
   res.status(200).json({ something: 'something' });
 }
