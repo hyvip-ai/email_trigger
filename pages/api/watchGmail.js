@@ -1,6 +1,13 @@
 import { gmail, oauth2Client } from './AuthClient';
 import { supabase } from '../../utils/supabase';
 
+const encodeMessage = (message) => {
+  return btoa(message)
+    .replace(/\+/g, '-')
+    .replace(/\//g, '_')
+    .replace(/=+$/, '');
+};
+
 const getMostRecentMessageWithTag = async (
   email,
   access_token,
@@ -19,40 +26,35 @@ const getMostRecentMessageWithTag = async (
       userId: email,
       id: messageId,
     });
-
-    return message;
+    const needed = message.data.payload.headers
+      .filter((item) => neededNames.includes(item.name))
+      .reduce((acc, item) => {
+        return (acc = { ...acc, [item.name]: item.value });
+      }, {});
+    return needed;
   }
 };
 
-const extractInfoFromMessage = (message) => {
-  const messageId = message.data.id;
-  let from;
-
-  const headers = message.data.payload.headers;
-  for (var i in headers) {
-    if (headers[i].name === 'From') {
-      from = headers[i].value;
-    }
-  }
-
-  return {
-    messageId: messageId,
-    from: from,
-  };
-};
-
-const createDraft = (access_token, refresh_token, threadId) => {
+const createDraft = async ({
+  access_token,
+  refresh_token,
+  threadId,
+  toEmail,
+  toName,
+  fromName,
+}) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
-  gmail.users.drafts.create({
-    userId: 'me',
+  const text = `To: ${toName}\r\n\r\n Hello ${
+    fromName.split(' ')[0].split('"')[1].split(' ')[0]
+  },\nThe message text goes here\nRegards,\nRajat Mondal`;
+
+  await gmail.users.drafts.create({
+    userId: toEmail,
+    access_token: tokens.access_token,
     requestBody: {
       message: {
         threadId,
-        payload: {
-          body: {
-            data: 'This is a draft message, Just replying It buddy, dont worry',
-          },
-        },
+        raw: encodeMessage(text),
       },
     },
   });
@@ -68,18 +70,22 @@ export default async function handler(req, res) {
     .eq('email', email)
     .single();
 
-  const message = await getMostRecentMessageWithTag(
+  const needed = await getMostRecentMessageWithTag(
     email,
     tokens.access_token,
     tokens.refresh_token
   );
 
-  if (message) {
-    const messageInfo = extractInfoFromMessage(message);
-    console.log({ ...message, ...messageInfo });
-  }
+  // needed.Subject
 
-  // createDraft(tokens.access_token, tokens.refresh_token, message.data.threadId);
+  await createDraft({
+    access_token: tokens.access_token,
+    refresh_token: tokens.refresh_token,
+    threadId: message.data.threadId,
+    toEmail: needed['Delivered-To'],
+    fromName: needed['From'],
+    toName: needed['Reply-To'],
+  });
 
-  res.status(200).json({ something: 'something' });
+  res.status(200).json({ message: 'successful' });
 }

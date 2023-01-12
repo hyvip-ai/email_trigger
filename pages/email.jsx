@@ -1,19 +1,20 @@
 import React from 'react';
-import { useTokenStore } from '../store/token';
 
 function Email() {
-  const accessToken = useTokenStore((state) => state.accessToken);
   const handleWatch = async () => {
-    const res = await fetch('/api/watch', {
-      method: 'POST',
-      body: JSON.stringify({ accessToken: accessToken.access_token }),
-      headers: { 'Content-Type': 'application/json' },
-    }).then((res) => res.json());
+    await fetch('/api/watch').then((res) => res.json());
+  };
+
+  const handleDraft = async () => {
+    const res = await fetch('/api/mostRecent').then((res) => res.json());
+    console.log(res);
   };
 
   return (
     <>
       <button onClick={handleWatch}>watch</button>
+      {/* <button onClick={handleDraft}>Draft</button> */}
+      <button onClick={handleDraft}>Draft</button>
     </>
   );
 }
