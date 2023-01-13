@@ -122,8 +122,9 @@ export default async function handler(req, res) {
   if (condition) {
     const reply = await generateReply(
       needed['Subject'],
-      'politely reject the offer'
+      'politely appreciate them and reject the offer and tell them I am free after 26th jan'
     );
+    reply = reply.replace(/^\s+|\s+$/g, '').trim();
     try {
       await createDraft({
         access_token: tokens.access_token,
