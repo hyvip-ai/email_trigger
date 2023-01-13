@@ -1,4 +1,4 @@
-import { gmail, oauth2Client } from './AuthClient';
+import { gmail, oauth2Client, openai } from './AuthClient';
 import { supabase } from '../../utils/supabase';
 
 const encodeMessage = (message) => {
