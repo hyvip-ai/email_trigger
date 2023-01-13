@@ -43,9 +43,10 @@ const createDraft = async ({
   threadId,
   reply,
   fromEmail,
+  subject,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
-  const text = `To: ${fromEmail
+  const text = `Subject:Re: ${subject}To: ${fromEmail
     ?.split(' <')[1]
     .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\nHello ${
     fromEmail.split(' <')[0].split(' ')[0]
@@ -133,6 +134,7 @@ export default async function handler(req, res) {
         toEmail: needed['To'],
         fromEmail: needed['From'],
         reply,
+        subject: needed['Subject'],
       });
     } catch (err) {
       console.log(err);
