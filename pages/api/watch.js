@@ -1,9 +1,16 @@
+import { supabase } from '../../utils/supabase';
 import { gmail, oauth2Client } from './AuthClient';
-import cookie from 'cookie';
 
 export default async function handler(req, response) {
-  const access_token = cookie.parse(req.headers.cookie).access_token;
-  oauth2Client.setCredentials({ access_token });
+  let { data: tokens } = await supabase
+    .from('tokens')
+    .select('access_token,refresh_token')
+    .eq('email', 'rm2932002@gmail.com')
+    .single();
+  oauth2Client.setCredentials({
+    access_token: tokens.access_token,
+    refresh_token: tokens.refresh_token,
+  });
   const { data } = await gmail.users.watch({
     userId: 'me',
     requestBody: {

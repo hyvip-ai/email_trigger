@@ -41,15 +41,15 @@ const createDraft = async ({
   access_token,
   refresh_token,
   threadId,
-  toEmail,
+  reply,
   fromEmail,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
   const text = `To: ${fromEmail
     ?.split(' <')[1]
-    .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\n Hello ${
+    .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\nHello ${
     fromEmail.split(' <')[0].split(' ')[0]
-  },\n\nThe message text goes here\n\nRegards,\nRajat Mondal`;
+  },\n\n${reply}\n\nRegards,\nRajat Mondal`;
 
   await gmail.users.drafts.create({
     userId: 'me',
@@ -83,6 +83,21 @@ const checkIfSame = async (predefinedLine, subjectLine) => {
   return res[0] > 0.75;
 };
 
+const generateReply = async (subject, replyManner) => {
+  const replyRes = await openai.createCompletion({
+    model: 'text-davinci-003',
+    prompt: `write a reply for "${subject}", ${replyManner}`,
+    temperature: 0.9,
+    max_tokens: 2048,
+    user: '1',
+    frequency_penalty: 0.0,
+    presence_penalty: 0.0,
+    stop: ['#', ';'],
+  });
+
+  return replyRes.data.choices[0].text;
+};
+
 export default async function handler(req, res) {
   const data = Buffer.from(req.body.message.data, 'base64').toString();
   const newMessageNotification = JSON.parse(data);
@@ -104,9 +119,11 @@ export default async function handler(req, res) {
     needed['Subject']
   );
 
-  console.log(condition);
-
   if (condition) {
+    const reply = await generateReply(
+      needed['Subject'],
+      'politely reject the offer'
+    );
     try {
       await createDraft({
         access_token: tokens.access_token,
@@ -114,6 +131,7 @@ export default async function handler(req, res) {
         threadId,
         toEmail: needed['To'],
         fromEmail: needed['From'],
+        reply,
       });
     } catch (err) {
       console.log(err);
