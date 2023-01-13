@@ -120,7 +120,7 @@ export default async function handler(req, res) {
   );
 
   if (condition) {
-    const reply = await generateReply(
+    let reply = await generateReply(
       needed['Subject'],
       'politely appreciate them and reject the offer and tell them I am free after 26th jan'
     );
