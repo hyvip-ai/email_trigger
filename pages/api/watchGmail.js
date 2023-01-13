@@ -99,9 +99,14 @@ export default async function handler(req, res) {
     tokens.refresh_token
   );
 
-  console.log(checkIfSame('asking to grab coffee', needed['Subject']));
+  const condition = await checkIfSame(
+    'asking to grab coffee',
+    needed['Subject']
+  );
 
-  if (checkIfSame('asking to grab coffee', needed['Subject'])) {
+  console.log(condition);
+
+  if (condition) {
     try {
       await createDraft({
         access_token: tokens.access_token,
