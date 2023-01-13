@@ -28,7 +28,6 @@ const getMostRecentMessageWithTag = async (
       userId: email,
       id: messageId,
     });
-    console.log(JSON.stringify(message.data.payload.headers));
     const needed = message.data.payload.headers
       .filter((item) => neededNames.includes(item.name))
       .reduce((acc, item) => {
@@ -50,7 +49,7 @@ const createDraft = async ({
     ?.split(' <')[1]
     .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\n Hello ${
     fromEmail.split(' <')[0].split(' ')[0]
-  },\nThe message text goes here\nRegards,\nRajat Mondal`;
+  },\n\nThe message text goes here\n\nRegards,\nRajat Mondal`;
 
   await gmail.users.drafts.create({
     userId: 'me',
@@ -62,6 +61,26 @@ const createDraft = async ({
       },
     },
   });
+};
+
+const checkIfSame = async (predefinedLine, subjectLine) => {
+  const body = JSON.stringify({
+    inputs: {
+      source_sentence: predefinedLine,
+      sentences: [subjectLine],
+    },
+  });
+
+  const res = await fetch(process.env.SENTENCE_MATCH_URL, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      Authorization: `Bearer ${process.env.HUGGING_AUTH_TOKEN}`,
+    },
+    body,
+  }).then((res) => res.json());
+
+  return res[0] > 0.75;
 };
 
 export default async function handler(req, res) {
@@ -80,9 +99,9 @@ export default async function handler(req, res) {
     tokens.refresh_token
   );
 
-  // needed.Subject
+  console.log(checkIfSame('asking to grab coffee', needed['Subject']));
 
-  if (needed['Subject']?.toLowerCase() === 'match with this') {
+  if (checkIfSame('asking to grab coffee', needed['Subject'])) {
     try {
       await createDraft({
         access_token: tokens.access_token,
@@ -97,3 +116,7 @@ export default async function handler(req, res) {
   }
   res.status(200).json({ message: 'successful' });
 }
+
+// reply manner
+
+// `${subjectOfEmail} reply this in ${replyManner} in ${wordCount} words`;
