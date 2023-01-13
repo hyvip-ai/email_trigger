@@ -46,7 +46,7 @@ const createDraft = async ({
   subject,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
-  const text = `Subject:Re: ${subject}To: ${fromEmail
+  const text = `Subject: Re: ${subject}\nTo: ${fromEmail
     ?.split(' <')[1]
     .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\nHello ${
     fromEmail.split(' <')[0].split(' ')[0]
@@ -115,29 +115,31 @@ export default async function handler(req, res) {
     tokens.refresh_token
   );
 
-  const condition = await checkIfSame(
-    'asking to grab coffee',
-    needed['Subject']
-  );
-
-  if (condition) {
-    let reply = await generateReply(
-      needed['Subject'],
-      'politely appreciate them and reject the offer and tell them I am free after 26th jan'
+  if (!needed['Subject']?.includes('Re:')) {
+    const condition = await checkIfSame(
+      'asking to grab coffee',
+      needed['Subject']
     );
-    reply = reply.replace(/^\s+|\s+$/g, '').trim();
-    try {
-      await createDraft({
-        access_token: tokens.access_token,
-        refresh_token: tokens.refresh_token,
-        threadId,
-        toEmail: needed['To'],
-        fromEmail: needed['From'],
-        reply,
-        subject: needed['Subject'],
-      });
-    } catch (err) {
-      console.log(err);
+
+    if (condition) {
+      let reply = await generateReply(
+        needed['Subject'],
+        'politely appreciate them and reject the offer and tell them I am free after 26th jan'
+      );
+      reply = reply.replace(/^\s+|\s+$/g, '').trim();
+      try {
+        await createDraft({
+          access_token: tokens.access_token,
+          refresh_token: tokens.refresh_token,
+          threadId,
+          toEmail: needed['To'],
+          fromEmail: needed['From'],
+          reply,
+          subject: needed['Subject'],
+        });
+      } catch (err) {
+        console.log(err);
+      }
     }
   }
   res.status(200).json({ message: 'successful' });
