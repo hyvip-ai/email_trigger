@@ -79,7 +79,7 @@ const checkIfSame = async (predefinedLine, subjectLine) => {
     },
     body,
   }).then((res) => res.json());
-
+  console.log(res[0]);
   return res[0] > 0.75;
 };
 
