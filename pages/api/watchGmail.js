@@ -64,7 +64,7 @@ const createDraft = async ({
   });
 };
 
-const checkIfSame = async (predefinedLine, subjectLine) => {
+const checkIfSame = async (predefinedLine, subjectLine, replyType) => {
   const body = JSON.stringify({
     inputs: {
       source_sentence: predefinedLine,
@@ -81,7 +81,7 @@ const checkIfSame = async (predefinedLine, subjectLine) => {
     body,
   }).then((res) => res.json());
   console.log(res[0]);
-  return res[0] > 0.75;
+  return { matches: res[0] > 0.7, subjectLine, replyType };
 };
 
 const generateReply = async (subject, replyManner) => {
@@ -105,7 +105,7 @@ export default async function handler(req, res) {
   const email = newMessageNotification.emailAddress;
   let { data: tokens } = await supabase
     .from('tokens')
-    .select('access_token,refresh_token')
+    .select('access_token,refresh_token,replyTypes')
     .eq('email', email)
     .single();
 
@@ -116,16 +116,25 @@ export default async function handler(req, res) {
   );
 
   if (!needed['Subject']?.includes('Re:')) {
-    const condition = await checkIfSame(
-      'asking to grab coffee',
-      needed['Subject']
-    );
-
-    if (condition) {
-      let reply = await generateReply(
-        needed['Subject'],
-        'politely appreciate them and reject the offer and tell them I am free after 26th jan'
+    const predefinedLines = Object.keys(tokens.replyTypes).map((item) => ({
+      subjectLine: replyTypes[item].emailSubject,
+      replyType: replyTypes[item].reply,
+    }));
+    let promises = [];
+    for (let i = 0; i < predefinedLines.length; i++) {
+      promises.push(
+        checkIfSame(
+          predefinedLines[i],
+          needed['Subject'],
+          predefinedLines[i].replyType
+        )
       );
+    }
+    const matches = await Promise.all(promises);
+    let replyType = matches.find((item) => item.matches)?.replyType;
+
+    if (matches) {
+      let reply = await generateReply(needed['Subject'], replyType);
       reply = reply.replace(/^\s+|\s+$/g, '').trim();
       try {
         await createDraft({

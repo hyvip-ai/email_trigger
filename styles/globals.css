@@ -76,6 +76,8 @@ html,
 body {
   max-width: 100vw;
   overflow-x: hidden;
+  height: 100%;
+  overflow: hidden;
 }
 
 body {
@@ -106,11 +108,37 @@ input {
 }
 
 button {
-  height: 45px;
   padding: 4px 16px;
   margin-left: 8px;
   border-radius: 4px;
   cursor: pointer;
+}
+
+.access {
+  font-size: clamp(1rem, 10vmin, 3rem);
+}
+
+.app_name {
+  font-size: clamp(3rem, 25vmin, 8rem);
+  text-align: center;
+  --bg-size: 400%;
+  --color-one: #86b91a;
+  --color-two: #edd532;
+  font-size: clamp(3rem, 25vmin, 8rem);
+  background: linear-gradient(120deg,
+      var(--color-one),
+      var(--color-two),
+      var(--color-one)) 0 0 / var(--bg-size) 100%;
+  color: transparent;
+  -webkit-background-clip: text;
+  background-clip: text;
+  animation: move-bg 8s infinite linear;
+}
+
+@keyframes move-bg {
+  to {
+    background-position: var(--bg-size) 0;
+  }
 }
 
 

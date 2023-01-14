@@ -2,13 +2,11 @@ import SEO from '../components/SEO';
 import { useCallback, useEffect } from 'react';
 import { useRouter } from 'next/router';
 import { useTokenStore } from '../store/token';
-import { useCookies } from 'react-cookie';
 import { supabase } from '../utils/supabase';
 
 export default function Home() {
   const router = useRouter();
   const setAccessToken = useTokenStore((state) => state.setAccessToken);
-  const [cookies, setCookie] = useCookies(['access_token']);
 
   const handleSubmit = async (e) => {
     e.preventDefault();
@@ -25,7 +23,6 @@ export default function Home() {
       }).then((res) => res.json());
       console.log(tokens);
       setAccessToken({ ...tokens.tokens });
-      setCookie('access_token', JSON.stringify(tokens.tokens.access_token));
       await supabase.from('tokens').insert([
         {
           email: tokens.email,
@@ -35,7 +32,7 @@ export default function Home() {
       ]);
       router.push(`/email`);
     },
-    [router, setAccessToken, setCookie]
+    [router, setAccessToken]
   );
 
   useEffect(() => {
@@ -47,9 +44,11 @@ export default function Home() {
   return (
     <>
       <SEO />
-      <h1>Email Trigger</h1>
+      <h1 className='app_name'>Email Trigger</h1>
       <form onSubmit={handleSubmit}>
-        <button type='submit'>Give Access</button>
+        <button type='submit' className='access'>
+          Give Access
+        </button>
       </form>
     </>
   );

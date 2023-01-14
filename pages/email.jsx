@@ -1,7 +1,5 @@
 import React, { useState } from 'react';
 
-// TODO: use embedding for comparing text
-
 function Email() {
   const [state, setState] = useState('');
 
@@ -20,6 +18,7 @@ function Email() {
           type='text'
           name='reply'
           onChange={(e) => setState(e.target.value)}
+          placeholder='please enter your name, that you want to attach at the end of the email (ex. regards [name])'
         />
         <button type='submit'>Submit</button>
       </form>
