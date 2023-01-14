@@ -113,7 +113,8 @@ button {
 }
 
 .access {
-  font-size: clamp(1rem, 10vmin, 3rem);
+  font-size: 24px;
+  margin: 50px auto;
 }
 
 .app_name {

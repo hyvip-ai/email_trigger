@@ -131,10 +131,10 @@ export default async function handler(req, res) {
       );
     }
     const matchesArray = await Promise.all(promises);
-    console.log(matchesArray);
 
     const matchedData = matchesArray.find((item) => item.matches);
-
+    console.log(matchesArray);
+    console.log(matchedData);
     if (matchedData?.matches) {
       let reply = await generateReply(
         needed['Subject'],
