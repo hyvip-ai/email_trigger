@@ -130,12 +130,15 @@ export default async function handler(req, res) {
       );
     }
     const matchesArray = await Promise.all(promises);
-    const { matches, replyType } = matchesArray.find((item) => item.matches);
-
     console.log(matchesArray);
 
-    if (matches) {
-      let reply = await generateReply(needed['Subject'], replyType);
+    const matchedData = matchesArray.find((item) => item.matches);
+
+    if (matchedData?.matches) {
+      let reply = await generateReply(
+        needed['Subject'],
+        matchedData?.replyType
+      );
       reply = reply.replace(/^\s+|\s+$/g, '').trim();
       try {
         await createDraft({
