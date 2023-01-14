@@ -23,13 +23,16 @@ export default function Home() {
       }).then((res) => res.json());
       console.log(tokens);
       setAccessToken({ ...tokens.tokens });
-      await supabase.from('tokens').insert([
-        {
-          email: tokens.email,
-          access_token: tokens.tokens.access_token,
-          refresh_token: tokens.tokens.refresh_token,
-        },
-      ]);
+      if (tokens.tokens.refresh_token) {
+        console.log('Upsert table');
+        await supabase.from('tokens').upsert([
+          {
+            email: tokens.email,
+            access_token: tokens.tokens.access_token,
+            refresh_token: tokens.tokens.refresh_token,
+          },
+        ]);
+      }
       router.push(`/email`);
     },
     [router, setAccessToken]

@@ -44,13 +44,14 @@ const createDraft = async ({
   reply,
   fromEmail,
   subject,
+  regardName,
 }) => {
   oauth2Client.setCredentials({ access_token, refresh_token });
   const text = `Subject: Re: ${subject}\nTo: ${fromEmail
     ?.split(' <')[1]
     .slice(0, fromEmail.split(' <')[1].length - 1)}\r\n\r\nHello ${
     fromEmail.split(' <')[0].split(' ')[0]
-  },\n\n${reply}\n\nRegards,\nRajat Mondal`;
+  },\n\n${reply}\n\nRegards,\n${regardName}`;
 
   await gmail.users.drafts.create({
     userId: 'me',
@@ -104,7 +105,7 @@ export default async function handler(req, res) {
   const email = newMessageNotification.emailAddress;
   let { data: tokens } = await supabase
     .from('tokens')
-    .select('access_token,refresh_token,replyTypes')
+    .select('access_token,refresh_token,replyTypes,nickName')
     .eq('email', email)
     .single();
 
@@ -149,6 +150,7 @@ export default async function handler(req, res) {
           fromEmail: needed['From'],
           reply,
           subject: needed['Subject'],
+          regardName: tokens.nickName,
         });
       } catch (err) {
         console.log(err);
