@@ -131,8 +131,8 @@ export default async function handler(req, res) {
         )
       );
     }
-    const matches = await Promise.all(promises);
-    let replyType = matches.find((item) => item.matches)?.replyType;
+    const matchesArray = await Promise.all(promises);
+    const { matches, replyType } = matchesArray.find((item) => item.matches);
 
     if (matches) {
       let reply = await generateReply(needed['Subject'], replyType);
