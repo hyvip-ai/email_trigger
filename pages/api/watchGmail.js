@@ -116,44 +116,41 @@ export default async function handler(req, res) {
   );
 
   if (!needed['Subject']?.includes('Re:')) {
-    const predefinedLines = Object.keys(tokens.replyTypes).map((item) => ({
-      subjectLine: replyTypes[item].emailSubject,
-      replyType: replyTypes[item].reply,
-    }));
-    let promises = [];
-    for (let i = 0; i < predefinedLines.length; i++) {
-      promises.push(
-        checkIfSame(
-          predefinedLines[i],
-          needed['Subject'],
-          predefinedLines[i].replyType
-        )
-      );
-    }
-    const matches = await Promise.all(promises);
-    let replyType = matches.find((item) => item.matches)?.replyType;
+    console.log(tokens.replyTypes);
+    // const predefinedLines = Object.keys(tokens.replyTypes).map((item) => ({
+    //   subjectLine: replyTypes[item].emailSubject,
+    //   replyType: replyTypes[item].reply,
+    // }));
+    // let promises = [];
+    // for (let i = 0; i < predefinedLines.length; i++) {
+    //   promises.push(
+    //     checkIfSame(
+    //       predefinedLines[i],
+    //       needed['Subject'],
+    //       predefinedLines[i].replyType
+    //     )
+    //   );
+    // }
+    // const matches = await Promise.all(promises);
+    // let replyType = matches.find((item) => item.matches)?.replyType;
 
-    if (matches) {
-      let reply = await generateReply(needed['Subject'], replyType);
-      reply = reply.replace(/^\s+|\s+$/g, '').trim();
-      try {
-        await createDraft({
-          access_token: tokens.access_token,
-          refresh_token: tokens.refresh_token,
-          threadId,
-          toEmail: needed['To'],
-          fromEmail: needed['From'],
-          reply,
-          subject: needed['Subject'],
-        });
-      } catch (err) {
-        console.log(err);
-      }
-    }
+    // if (matches) {
+    //   let reply = await generateReply(needed['Subject'], replyType);
+    //   reply = reply.replace(/^\s+|\s+$/g, '').trim();
+    //   try {
+    //     await createDraft({
+    //       access_token: tokens.access_token,
+    //       refresh_token: tokens.refresh_token,
+    //       threadId,
+    //       toEmail: needed['To'],
+    //       fromEmail: needed['From'],
+    //       reply,
+    //       subject: needed['Subject'],
+    //     });
+    //   } catch (err) {
+    //     console.log(err);
+    //   }
+    // }
   }
   res.status(200).json({ message: 'successful' });
 }
-
-// reply manner
-
-// `${subjectOfEmail} reply this in ${replyManner} in ${wordCount} words`;
