@@ -80,7 +80,6 @@ const checkIfSame = async (predefinedLine, subjectLine, replyType) => {
     },
     body,
   }).then((res) => res.json());
-  console.log(res[0]);
   return { matches: res[0] > 0.7, subjectLine, replyType };
 };
 
@@ -116,7 +115,6 @@ export default async function handler(req, res) {
   );
 
   if (!needed['Subject']?.includes('Re:')) {
-    console.log(tokens.replyTypes);
     const predefinedLines = Object.keys(tokens.replyTypes).map((item) => ({
       subjectLine: tokens.replyTypes[item].emailSubject,
       replyType: tokens.replyTypes[item].reply,
@@ -125,7 +123,7 @@ export default async function handler(req, res) {
     for (let i = 0; i < predefinedLines.length; i++) {
       promises.push(
         checkIfSame(
-          predefinedLines[i],
+          predefinedLines[i].subjectLine,
           needed['Subject'],
           predefinedLines[i].replyType
         )
@@ -133,6 +131,8 @@ export default async function handler(req, res) {
     }
     const matchesArray = await Promise.all(promises);
     const { matches, replyType } = matchesArray.find((item) => item.matches);
+
+    console.log(matchesArray);
 
     if (matches) {
       let reply = await generateReply(needed['Subject'], replyType);
