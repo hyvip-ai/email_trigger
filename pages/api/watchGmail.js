@@ -159,3 +159,20 @@ export default async function handler(req, res) {
   }
   res.status(200).json({ message: 'successful' });
 }
+
+// example JSON for replytypes:
+
+// {
+//   "coffee_reply": {
+//     "emailSubject": "asking to grab coffee",
+//     "reply": "politely tell them I am busy till march"
+//   },
+//   "investment_reply": {
+//     "emailSubject": "opportunity to invest in a startup",
+//     "reply": "tell them I am not interested and don't contact me again, harshly"
+//   },
+//   "feeling_reply": {
+//     "emailSubject": "asking about me",
+//     "reply": "tell them I am good but a little busy with work"
+//   }
+// }

@@ -1,15 +1,18 @@
 import SEO from '../components/SEO';
-import { useCallback, useEffect } from 'react';
+import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'next/router';
 import { useTokenStore } from '../store/token';
 import { supabase } from '../utils/supabase';
+import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 
 export default function Home() {
   const router = useRouter();
   const setAccessToken = useTokenStore((state) => state.setAccessToken);
+  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleAccess = async (e) => {
+    setLoading(true);
     const res = await fetch('/api/auth').then((res) => res.json());
     router.push(res.url);
   };
@@ -33,6 +36,8 @@ export default function Home() {
           },
         ]);
       }
+      setLoading(false);
+      toast.success('Gmail account connected successfully');
       router.push(`/email`);
     },
     [router, setAccessToken]
@@ -48,11 +53,13 @@ export default function Home() {
     <>
       <SEO />
       <h1 className='app_name'>Email Trigger</h1>
-      <form onSubmit={handleSubmit}>
-        <button type='submit' className='access'>
+      {loading ? (
+        <Loader />
+      ) : (
+        <button onClick={handleAccess} className='access'>
           Give Access
         </button>
-      </form>
+      )}
     </>
   );
 }

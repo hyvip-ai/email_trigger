@@ -4,6 +4,7 @@
         "davinci",
         "openai",
         "supabase",
+        "toastify",
         "zustand"
     ]
 }

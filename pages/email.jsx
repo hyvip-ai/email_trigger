@@ -1,5 +1,7 @@
 import { useRouter } from 'next/router';
 import React, { useEffect, useState } from 'react';
+import { toast } from 'react-toastify';
+import Loader from '../components/Loader';
 import { supabase } from '../utils/supabase';
 
 function Email() {
@@ -7,6 +9,7 @@ function Email() {
 
   const [replyTypes, setReplyTypes] = useState([]);
   const [nickName, setNickName] = useState('');
+  const [loading, setLoading] = useState(false);
 
   const [name, setName] = useState('');
 
@@ -16,7 +19,7 @@ function Email() {
       .select('nickName,replyTypes')
       .eq('email', 'rm2932002@gmail.com')
       .single();
-    const modifications = Object.keys(data.replyTypes).map((item) => ({
+    const modifications = Object.keys(data.replyTypes || {}).map((item) => ({
       name: item,
       subject: data.replyTypes[item].emailSubject,
       replyType: data.replyTypes[item].reply,
@@ -31,6 +34,11 @@ function Email() {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (!name) {
+      toast.error("Name can't be empty");
+      return;
+    }
+    setLoading(true);
     try {
       await fetch('/api/updateName', {
         method: 'POST',
@@ -38,6 +46,8 @@ function Email() {
         headers: { 'Content-Type': 'application/json' },
       });
       await handleWatch();
+      await handleFetchAutomation();
+      setLoading(false);
     } catch (err) {
       console.log(err);
     }
@@ -52,6 +62,8 @@ function Email() {
       <div className='formContainer'>
         {nickName ? (
           <h4>Hello {nickName}</h4>
+        ) : loading ? (
+          <Loader />
         ) : (
           <>
             <h5>Set your name and let us handle your email</h5>
@@ -66,6 +78,7 @@ function Email() {
                   borderTopRightRadius: '0',
                   borderBottomRightRadius: '0',
                 }}
+                disabled={loading}
               />
               <button
                 type='submit'
@@ -73,6 +86,7 @@ function Email() {
                   borderTopLeftRadius: '0',
                   borderBottomLeftRadius: '0',
                 }}
+                disabled={loading}
               >
                 Start Watching
               </button>
