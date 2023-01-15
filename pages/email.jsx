@@ -6,13 +6,14 @@ function Email() {
   const router = useRouter();
 
   const [replyTypes, setReplyTypes] = useState([]);
+  const [nickName, setNickName] = useState('');
 
   const [name, setName] = useState('');
 
   const handleFetchAutomation = async () => {
     const { data } = await supabase
       .from('tokens')
-      .select('replyTypes')
+      .select('nickName,replyTypes')
       .eq('email', 'rm2932002@gmail.com')
       .single();
     const modifications = Object.keys(data.replyTypes).map((item) => ({
@@ -21,6 +22,7 @@ function Email() {
       replyType: data.replyTypes[item].reply,
     }));
     setReplyTypes([...modifications]);
+    setNickName(data.nickName);
   };
 
   const handleWatch = async () => {
@@ -48,23 +50,35 @@ function Email() {
   return (
     <>
       <div className='formContainer'>
-        <h5>Set your name and let us handle your email</h5>
-        <form onSubmit={handleSubmit}>
-          <input
-            id='nickName'
-            type='text'
-            name='reply'
-            onChange={(e) => setName(e.target.value)}
-            placeholder='please enter your name, that you want to attach at the end of the email (ex. regards [name])'
-            style={{ borderTopRightRadius: '0', borderBottomRightRadius: '0' }}
-          />
-          <button
-            type='submit'
-            style={{ borderTopLeftRadius: '0', borderBottomLeftRadius: '0' }}
-          >
-            Start Watching
-          </button>
-        </form>
+        {nickName ? (
+          <h4>Hello {nickName}</h4>
+        ) : (
+          <>
+            <h5>Set your name and let us handle your email</h5>
+            <form onSubmit={handleSubmit}>
+              <input
+                id='nickName'
+                type='text'
+                name='reply'
+                onChange={(e) => setName(e.target.value)}
+                placeholder='please enter your name, that you want to attach at the end of the email (ex. regards [name])'
+                style={{
+                  borderTopRightRadius: '0',
+                  borderBottomRightRadius: '0',
+                }}
+              />
+              <button
+                type='submit'
+                style={{
+                  borderTopLeftRadius: '0',
+                  borderBottomLeftRadius: '0',
+                }}
+              >
+                Start Watching
+              </button>
+            </form>
+          </>
+        )}
       </div>
       <div className='automations'>
         <h3>Available Automations</h3>
@@ -83,7 +97,14 @@ function Email() {
               replyTypes.map((item, index) => (
                 <tr key={index}>
                   <td>{index + 1}</td>
-                  <td>{item.name}</td>
+                  <td>
+                    {item.name
+                      .split('_')
+                      .map(
+                        (item) => item.charAt(0).toUpperCase() + item.slice(1)
+                      )
+                      .join(' ')}
+                  </td>
                   <td>{item.subject}</td>
                   <td>{item.replyType}</td>
                   <td>
@@ -100,6 +121,12 @@ function Email() {
             )}
           </tbody>
         </table>
+        <button
+          className='btn btn-secondary'
+          onClick={() => router.push('/automation')}
+        >
+          Add Automation
+        </button>
       </div>
       <div className='remove'>
         <h3>

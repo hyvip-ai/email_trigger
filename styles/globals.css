@@ -141,6 +141,10 @@ button {
   margin: 50px auto;
 }
 
+.automation_form {
+  display: block;
+}
+
 @keyframes move-bg {
   to {
     background-position: var(--bg-size) 0;
