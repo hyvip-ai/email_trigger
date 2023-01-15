@@ -1,6 +1,10 @@
 ## Parts of the project
 
-- [x] create a type of email reply
-- [x] get the query for subject line and reply message type
-- [x] generate reply from open ai api
-- [x] check for any mail with the type of subject line and create a reply draft
+- [x] check for any mail
+- [x] Check the subject like with predefined automations
+- [x] create a reply and draft with openai and gmail api respectively
+
+### Things need to be done
+
+- [ ] Integrate the create automation form with supabase
+- [ ] Integrate edit and delete on automations
